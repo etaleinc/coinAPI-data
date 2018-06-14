@@ -3,19 +3,14 @@
 
 # In[4]:
 
-
-#from test_functions import make_dataframe as mkdf
-#from test_functions import make_csv as mk
 import sys
 sys.path.insert(0, '/Users/federicobuonerba/Downloads/')
 
-from test_functions import download_json_simple_loop
-from test_functions import make_csv
-
+from data_try_except import get_symbols, get_data
 
 # In[11]:
 
 
 unix_time= 1451606400
-download_json_simple_loop(unix_time)
-make_csv(unix_time)
+symbols=get_symbols()
+get_data(unix_time, symbols[7])
