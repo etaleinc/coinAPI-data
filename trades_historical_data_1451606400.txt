@@ -1,0 +1,1 @@
+[{"symbol_id": "BINANCE_SPOT_ETH_BTC", "time_exchange": "2017-12-18T20:54:34.1660000Z", "time_coinapi": "2017-12-18T20:56:18.0327174Z", "uuid": "a1205a9c-9388-4898-af89-8b8d1e47cd75", "price": 0.041513, "size": 2.419, "taker_side": "BUY"}]
