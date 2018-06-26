@@ -30,8 +30,9 @@ def until_midnight():
     tomorrow = datetime.now() + timedelta(1)
     midnight = datetime(year=tomorrow.year, month=tomorrow.month, 
                         day=tomorrow.day, hour=0, minute=0, second=0)
-    wrong_number=(midnight - datetime.now()).seconds
-    return (wrong_number - 14399)
+    almost=(midnight - datetime.now()).seconds
+    #returns midnight + 1 minute in utc.
+    return (almost + 61)
 
 
 # In[3]:
@@ -49,19 +50,21 @@ class request_exchange_rates(luigi.Task):
         return luigi.LocalTarget(self.path+'exchange_rate_'+str(self.base)+'_'+str(self.quote)+'_'+str(self.unix_time)+'.txt')
     
     def run(self):
-        utctime = datetime.utcfromtimestamp(self.unix_time).strftime('%Y-%m-%dT%H:%M:%S')
+        
         while True:
             try:
-                exchange=api.exchange_rates_get_specific_rate(self.base, self.quote, {'time': utctime})
+                utctime = datetime.utcfromtimestamp(self.unix_time).strftime('%Y-%m-%dT%H:%M:%S')
+                exchange=api.exchange_rates_get_specific_rate(self.base, self.quote, {'time':utctime})
                 with self.output().open('w') as outfile:
                     json.dump(exchange, outfile) 
                 break
             except urllib.error.HTTPError as err:
-                print(err.code)
-                time.sleep(until_midnight())   
+                print(err)
+                wake_up=until_midnight()
+                time.sleep( wake_up )          
                 
-                
-beginning=1485609600
+#cpu=8, should use that many parallel processes.                
+beginning=1529861400
 while True:
-    luigi.build([request_exchange_rates(unix_time=beginning+600*t, base='ETH', quote='USD') for t in range(1000)], local_scheduler=True, workers=5000)
-    beginning+=600000
+    luigi.build([request_exchange_rates(unix_time=beginning+600*t, base='BTC', quote='USD') for t in range(8)], local_scheduler=True, workers=8)       
+    beginning+=4800
