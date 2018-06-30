@@ -30,7 +30,7 @@ def until_midnight():
 
 
 
-def request_rates(unix_time, base, quote): 
+def request_rates(unix_time, base, quote, interval): 
     path='/home/fbuonerba/exchange_rates_data/'
     utctime = datetime.utcfromtimestamp(unix_time).strftime('%Y-%m-%dT%H:%M:%S')
     while True:
@@ -47,20 +47,22 @@ def request_rates(unix_time, base, quote):
             elif err.code==550 and unix_time>=time.time():
                 print(err, unix_time,'too early!')
                 #requesting data from the future
-                time.sleep(1200)
+                time.sleep(interval)
             else:
                 print(err, unix_time, 'unavailable data')
-                #unavailable data 
+                with open(path+'exchange_rate_'+str(base)+'_'+str(quote)+'_'+str(unix_time)+'.txt', 'w') as outfile:  
+                    json.dump({}, outfile) 
+                #unavailable data. Corresponding file contains only {}
                 return None
 
 
 
-unix_time=1530100200
-pool = mp.Pool()#processes=7)
-
-while True:
-    results = [pool.apply_async(request_rates, args=(unix_time - 600*t,'BTC','USD',)) for t in range(8)] 
-    output = [res.get() for res in results]
-    print(unix_time, output)
-    unix_time+=4800
+#unix_time=1530268200
+#pool = mp.Pool()#processes=7)
+#
+#while True:
+#    results = [pool.apply_async(request_rates, args=(unix_time - 600*t,'BTC','USD',)) for t in range(8)] 
+#    output = [res.get() for res in results]
+#    #print(unix_time, output)
+#    unix_time+=4800
 
