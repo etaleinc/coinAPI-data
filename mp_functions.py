@@ -1,6 +1,3 @@
-
-import pandas as pd
-import numpy as np
 import sys
 sys.path.insert(0, '/home/fbuonerba/codes')
 from coinapi_v1 import CoinAPIv1
@@ -43,6 +40,7 @@ def request_rates(unix_time, base, quote, interval):
             if err.code==429:
                 print(err, unix_time)
                 #exceeded daily requests
+                #time.sleep(until_midnight())
                 time.sleep(until_midnight())
             elif err.code==550 and unix_time>=time.time():
                 print(err, unix_time,'too early!')
@@ -54,15 +52,3 @@ def request_rates(unix_time, base, quote, interval):
                     json.dump({}, outfile) 
                 #unavailable data. Corresponding file contains only {}
                 return None
-
-
-
-#unix_time=1530268200
-#pool = mp.Pool()#processes=7)
-#
-#while True:
-#    results = [pool.apply_async(request_rates, args=(unix_time - 600*t,'BTC','USD',)) for t in range(8)] 
-#    output = [res.get() for res in results]
-#    #print(unix_time, output)
-#    unix_time+=4800
-
