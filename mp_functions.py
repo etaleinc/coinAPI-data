@@ -100,7 +100,7 @@ def upload_rates(unix_time, base, quote):
     return(exchange)
     
 
-def upload_ohlcv(unix_time, base quote, exchange, limit):
+def upload_ohlcv(unix_time, base, quote, exchange, limit):
     path='/home/fbuonerba/ohlcv_data/'
     sym_id=str(exchange)+'_SPOT_'+str(base)+'_'+str(quote)
     try:
@@ -116,9 +116,17 @@ def compute_log_return(unix_time, base, quote, interval):
         ret1=json.load(file1)
     with open(path1+'exchange_rate_'+str(base)+'_'+str(quote)+'_'+str(unix_time+interval)+'.txt') as file2:
         ret2=json.load(file2)
-    log_ret=np.log(ret2['rate'])-np.log(ret1['rate'])
-    path2='/home/fbuonerba/log_returns_data/'
-          name=path2+'log_return_'+str(base)+'_'+str(quote)+'_'+str(unix_time)+'_'+str(unix_time+interval)+'.txt'
-    with open(name,'w') as ff:
-        json.dump(log_ret,ff)
+        
+    if ret1=={} or ret2=={}:
+        log_ret=None
+        path2='/home/fbuonerba/log_returns_data/log_return_'
+        name=path2+str(base)+'_'+str(quote)+'_'+str(unix_time)+'_'+str(unix_time+interval)+'.txt'
+        with open(name,'w') as ff:
+            json.dump({},ff)
+    else:
+        log_ret=np.log(ret2['rate'])-np.log(ret1['rate'])
+        path2='/home/fbuonerba/log_returns_data/log_return_'
+        name=path2+str(base)+'_'+str(quote)+'_'+str(unix_time)+'_'+str(unix_time+interval)+'.txt'
+        with open(name,'w') as ff:
+            json.dump(log_ret,ff)
     return(log_ret)
