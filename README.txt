@@ -10,11 +10,11 @@
 
 * The programs whose name begins in 'get_' iterate the corresponding function 'request_' (imported from mp_functions.py) over time, automating the data collection.
 
-* The programs whose name begins in 'compute_' transform data from one form to another. For example, compute_log_returns.py transforms exchange rates into log returns. If data is not available, the corresponding file contains only '{}'.
-
 * The programs whose name begins in 'upload_' open files with corresponding data and prepare it for further manipulation. Implicitly they download requestes data if corresponding file does not exist.
 
-* Makefile controls the pipeline of data transformation. It loads exchange rates and dumps log returns.
+* The programs whose name begins in 'compute_' transform data from one form to another. For example, compute_log_returns.py loads exchange rates via 'upload_rates' function, and then transforms it into log returns. If data is not available, the corresponding file contains only '{}'.
+
+* Makefile controls the pipeline of data transformation. At the present time, it only loads exchange rates and dumps log returns.
 
 * run_makefile.py manages execution of Makefile via python script.
 

@@ -1,6 +1,5 @@
 from mp_functions import compute_log_return
 import sys
-
 unix_time=int((sys.argv[1]))
 base=sys.argv[2]
 quote=sys.argv[3]

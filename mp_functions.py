@@ -52,11 +52,11 @@ def request_rates(unix_time, base, quote, interval):
                 #requesting data from the future
                 time.sleep(interval)
             else:
-                print(err, unix_time, 'unavailable data')
+                #print(err, unix_time, 'unavailable data')
                 with open(path+'exchange_rate_'+str(base)+'_'+str(quote)+'_'+str(unix_time)+'.txt', 'w') as outfile:  
                     json.dump({}, outfile) 
                 #unavailable data. Corresponding file contains only {}
-                return None
+                return( {} )
 
 def request_ohlcv(unix_time, base, quote, exchange, interval, limit):
     path='/home/fbuonerba/ohlcv_data/ohlcv_'
@@ -79,13 +79,12 @@ def request_ohlcv(unix_time, base, quote, exchange, interval, limit):
                 #requesting data from the future
                 time.sleep(interval)
             else:
-                print(err, unix_time, 'unavailable data')
+                #print(err, unix_time, 'unavailable data')
                 for j in range(limit):
                     with open(path+sym_id+'_'+str(unix_time+j*86400)+'_'+str(unix_time+(j+1)*86400)+'.txt', 'w') as ff:
                         json.dump({},ff)
                 #unavailable data
-                ohlcv=[]
-                return ohlcv          
+                return( {} )     
             
 
 
@@ -111,14 +110,16 @@ def upload_ohlcv(unix_time, base, quote, exchange, limit):
     return(ohlcv)
     
 def compute_log_return(unix_time, base, quote, interval):
-    path1='/home/fbuonerba/exchange_rates_data/'
-    with open(path1+'exchange_rate_'+str(base)+'_'+str(quote)+'_'+str(unix_time)+'.txt') as file1:
-        ret1=json.load(file1)
-    with open(path1+'exchange_rate_'+str(base)+'_'+str(quote)+'_'+str(unix_time+interval)+'.txt') as file2:
-        ret2=json.load(file2)
-        
+    
+    ret1=upload_rates(unix_time,base,quote)
+    ret2=upload_rates(unix_time+interval,base,quote)
+   #path1='/home/fbuonerba/exchange_rates_data/'
+   #with open(path1+'exchange_rate_'+str(base)+'_'+str(quote)+'_'+str(unix_time)+'.txt') as file1:
+   #    ret1=json.load(file1)
+   #with open(path1+'exchange_rate_'+str(base)+'_'+str(quote)+'_'+str(unix_time+interval)+'.txt') as file2:
+   #    ret2=json.load(file2)
     if ret1=={} or ret2=={}:
-        log_ret=None
+        log_ret=float('nan')
         path2='/home/fbuonerba/log_returns_data/log_return_'
         name=path2+str(base)+'_'+str(quote)+'_'+str(unix_time)+'_'+str(unix_time+interval)+'.txt'
         with open(name,'w') as ff:
