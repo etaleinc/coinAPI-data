@@ -9,7 +9,7 @@ with open(meta_path+'top_coins.txt') as f:
 quotes=['USD','BTC']
 with open(meta_path+'top_exchanges.txt') as ff:
     exchanges=json.load(ff)
-unix_time=1531008000
+unix_time=1522540800
 pool = mp.Pool()
 while True:
     results=[pool.apply_async(request_ohlcv, args=(unix_time,coin,quote, exchange, 86410, 2,)) for coin in coins for quote in quotes for exchange in exchanges]

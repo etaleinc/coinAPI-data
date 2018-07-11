@@ -10,11 +10,11 @@ with open('/home/fbuonerba/codes/meta_data/top_exchanges.txt') as ff:
 quotes=['USD','BTC']
 
 def worker(unix_time, base,quote, interval):
-    pro=subprocess.Popen(["make", "--silent", "unix_time=%s" % unix_time, "base=%s" % base, "quote=%s" % quote, "interval=%s" % interval])
+    pro=subprocess.Popen(["make","-s", "unix_time=%s" % unix_time, "base=%s" % base, "quote=%s" % quote, "interval=%s" % interval])
     pro.wait()
 #without pro.wait(), results(time=t) are started even if results(time=t-1) is not done.    
     
-unix_time=1515452400
+unix_time=1529334000
 interval=3600
 pool = mp.Pool()
 while True:
