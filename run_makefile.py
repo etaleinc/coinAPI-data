@@ -21,7 +21,7 @@ while True:
     results=[pool.apply_async(worker, args=(unix_time,base,quote,interval,) ) for base in coins for quote in quotes ]
     unix_time+=3600
     if unix_time>=time.time():
-         time.sleep( interval +10 )
+         time.sleep( unix_time - time.time() + 10 )
 # unix_time=1511467200
 # #1485205200
 # interval=3600
