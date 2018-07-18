@@ -7,10 +7,10 @@ with open(meta_path+'top_coins.txt') as f:
     coins=json.load(f)
     
 quotes=['USD','BTC']
-unix_time=1530651600
+unix_time=1522540800
 pool = mp.Pool()
 while True:
-    results=[pool.apply_async(request_rates, args=(unix_time,coin,quote,3610,)) for coin in coins for quote in quotes]
+    results=[pool.apply_async(request_rates, args=(unix_time,coin,quote,)) for coin in coins for quote in quotes]
     output = [res.get() for res in results]
     unix_time+=3600
 

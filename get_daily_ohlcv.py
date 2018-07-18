@@ -12,9 +12,7 @@ with open(meta_path+'top_exchanges.txt') as ff:
 unix_time=1522540800
 pool = mp.Pool()
 while True:
-    results=[pool.apply_async(request_ohlcv, args=(unix_time,coin,quote, exchange, 86410, 2,)) for coin in coins for quote in quotes for exchange in exchanges]
+    results=[pool.apply_async(request_ohlcv, args=(unix_time,coin,quote, exchange, 1,)) for coin in coins for quote in quotes for exchange in exchanges]
     output = [res.get() for res in results]
-    if unix_time > previous_midnight():
-        time.sleep(until_midnight())
-    unix_time += 172800
+    unix_time += 86400
 

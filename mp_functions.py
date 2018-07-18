@@ -32,10 +32,14 @@ def previous_midnight():
     right_number=(ye_midnight).timestamp()
     return(right_number - 61)
 
-def request_rates(unix_time, base, quote, interval): 
+def request_rates(unix_time, base, quote): 
     path='/home/fbuonerba/exchange_rates_data/'
     utctime = datetime.utcfromtimestamp(unix_time).strftime('%Y-%m-%dT%H:%M:%S')
     while True:
+        #check if it's too early for such request:
+        if unix_time+10>=time.time():
+            print('too early!')
+            time.sleep(unix_time-time.time()+10)
         try:
             exchange=api.exchange_rates_get_specific_rate(base, quote, {'time': utctime})
             with open(path+'exchange_rate_'+str(base)+'_'+str(quote)+'_'+str(unix_time)+'.txt', 'w') as outfile:  
@@ -43,26 +47,27 @@ def request_rates(unix_time, base, quote, interval):
             return(exchange)
         except urllib.error.HTTPError as err:
             if err.code==429:
-                print(err, unix_time)
+                print(err.code, unix_time)
                 #exceeded daily requests
-                #time.sleep(until_midnight())
                 time.sleep(until_midnight())
-            elif err.code==550 and unix_time>=time.time():
-                print(err, unix_time,'too early!')
-                #requesting data from the future
-                time.sleep(interval)
             else:
-                #print(err, unix_time, 'unavailable data')
                 with open(path+'exchange_rate_'+str(base)+'_'+str(quote)+'_'+str(unix_time)+'.txt', 'w') as outfile:  
                     json.dump({}, outfile) 
                 #unavailable data. Corresponding file contains only {}
                 return( {} )
 
-def request_ohlcv(unix_time, base, quote, exchange, interval, limit):
+def request_ohlcv(unix_time, base, quote, exchange, limit):
     path='/home/fbuonerba/ohlcv_data/ohlcv_'
     sym_id=str(exchange)+'_SPOT_'+str(base)+'_'+str(quote)
     utctime = datetime.utcfromtimestamp(unix_time).strftime('%Y-%m-%dT%H:%M:%S')
     while True:
+        #check if it's too early for such request:
+        if unix_time + limit*86400 +10>=time.time():
+            #number of days after unix_time:
+            time_ahead=time.time()+until_midnight()-unix_time
+            print('too early! Starting midnight, wait for', limit-int(time_ahead/86400), 'days')
+            time.sleep(until_midnight()+86400*limit-time_ahead +10)
+        #if it's not too early, try and send a request.
         try:
             ohlcv=api.ohlcv_historical_data(sym_id, {'period_id': '1DAY', 'time_start':utctime, 'limit': limit})
             for j in range(len(ohlcv)):
@@ -71,13 +76,9 @@ def request_ohlcv(unix_time, base, quote, exchange, interval, limit):
             return ohlcv
         except urllib.error.HTTPError as err:
             if err.code==429:
-                print(err, unix_time)
+                print(err.code, unix_time)
                 #exceeded daily requests
                 time.sleep(until_midnight())
-            elif err.code==550 and unix_time>=time.time():
-                print(err, unix_time,'too early!')
-                #requesting data from the future
-                time.sleep(interval)
             else:
                 #print(err, unix_time, 'unavailable data')
                 for j in range(limit):
@@ -95,22 +96,21 @@ def upload_rates(unix_time, base, quote):
         with open(path+'exchange_rate_'+str(base)+'_'+str(quote)+'_'+str(unix_time)+'.txt') as json_file:
             exchange = json.load(json_file)    
     except:
-        exchange=request_rates(unix_time, base, quote, 0) 
+        exchange=request_rates(unix_time, base, quote) 
     return(exchange)
     
 
-def upload_ohlcv(unix_time, base, quote, exchange, limit):
+def upload_ohlcv(unix_time, base, quote, exchange):
     path='/home/fbuonerba/ohlcv_data/'
     sym_id=str(exchange)+'_SPOT_'+str(base)+'_'+str(quote)
     try:
         with open(path+sym_id+'_'+str(unix_time)+'_'+str(unix_time+86400)+'.txt') as json_file:
             ohlcv = json.load(json_file)    
     except:
-        ohlcv=request_ohlcv(unix_time, base, quote, exchange, 0, 1) 
+        ohlcv=request_ohlcv(unix_time, base, quote, exchange, 1) 
     return(ohlcv)
     
 def compute_log_return(unix_time, base, quote, interval):
-    
     ret1=upload_rates(unix_time,base,quote)
     ret2=upload_rates(unix_time+interval,base,quote)
     if ret1=={} or ret2=={}:
