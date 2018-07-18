@@ -13,6 +13,9 @@ for i in diction.keys():
     cmc_data=web_data.read()
     cmc=json.loads(cmc_data.decode('utf-8'))
     cmc=cmc['data']
-    with open(new_path+'cmc_data_'+cmc['symbol'],'w') as roug:
+    #for some reason, their symbol for IOTA is MIOTA...#
+    if cmc['symbol']=='MIOTA':
+        cmc['symbol']='IOTA'
+    with open(new_path+'cmc_data_'+cmc['symbol']+'.txt','w') as roug:
         json.dump(cmc,roug)
     

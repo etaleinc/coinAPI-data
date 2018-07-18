@@ -2,6 +2,10 @@
 
 * The codes used to download the data are in the directory '/home/fbuonerba/codes'.
 
+* The file 'get_cmc_data.py' downloads volumes and number of coins from CoinMarketCap.
+
+* The files discussed below build a pipeline for raw data imported from coinAPI.
+
 * The file coinapi_v1.py contains various functions provided by coinAPI to contact their server.
 
 * The file mp_functions.py contains all the functions that implement an elementary step in the data pipeline.
@@ -19,10 +23,8 @@
 * run_makefile.py manages execution of Makefile via python script. In order to speed up the process, it executes multiple makefiles in parallel.
 
 * The directory 'meta_data' contains files featuring names of coins, exchanges, etc. etc.
+Remark that coins listed in 'top_coins.txt' and those in 'cmc_id_list.txt' differ - the second is a subset of the first, with difference 'EUR','AIO','LIZA','HB'. Indeed those four mysterious coins listed on coinAPI, do not appear on CoinMarketCap.
 
-* The directory 'ipynotebooks' contains python notebooks used to test codes.
-
-* The directory 'obsolete' contains old and naive versions of the codes.
-
+* The directory 'ipynotebooks' contains python notebooks used to test codes and make quick experiments.
 
 
