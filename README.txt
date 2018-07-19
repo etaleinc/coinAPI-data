@@ -23,6 +23,7 @@
 * run_makefile.py manages execution of Makefile via python script. In order to speed up the process, it executes multiple makefiles in parallel.
 
 * The directory 'meta_data' contains files featuring names of coins, exchanges, etc. etc.
+The file 'symbols.txt' contains those triples (exchange, base, quote) for which coinAPI has data.
 Remark that coins listed in 'top_coins.txt' and those in 'cmc_id_list.txt' differ - the second is a subset of the first, with difference 'EUR','AIO','LIZA','HB'. Indeed those four mysterious coins listed on coinAPI, do not appear on CoinMarketCap.
 
 * The directory 'ipynotebooks' contains python notebooks used to test codes and make quick experiments.

@@ -56,9 +56,8 @@ def request_rates(unix_time, base, quote):
                 #unavailable data. Corresponding file contains only {}
                 return( {} )
 
-def request_ohlcv(unix_time, base, quote, exchange, limit):
+def request_ohlcv(unix_time, sym_id, limit):
     path='/home/fbuonerba/ohlcv_data/ohlcv_'
-    sym_id=str(exchange)+'_SPOT_'+str(base)+'_'+str(quote)
     utctime = datetime.utcfromtimestamp(unix_time).strftime('%Y-%m-%dT%H:%M:%S')
     while True:
         #check if it's too early for such request:
