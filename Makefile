@@ -1,11 +1,17 @@
-/home/fbuonerba/log_returns_data/log_return_$(base)_$(quote)_$(unix_time)_$(shell echo $$(( $(unix_time) + $(interval) ))).txt: /home/fbuonerba/exchange_rates_data/exchange_rate_$(base)_$(quote)_$(unix_time).txt /home/fbuonerba/exchange_rates_data/exchange_rate_$(base)_$(quote)_$(shell echo $$(( $(unix_time) + $(interval) ))).txt
-	python3 compute_log_returns.py $(unix_time) $(base) $(quote) $(interval)
+b=$(base)
+q=$(quote)
+t1=$(unix_time)
+dt=$(interval)
+t2=$(shell echo $$(( $(unix_time) + $(interval) )))
 
-/home/fbuonerba/exchange_rates_data/exchange_rate_$(base)_$(quote)_$(unix_time).txt:
-	python3 upload_rates.py $(unix_time) $(base) $(quote)
+/home/fbuonerba/log_returns_data/log_return_b_q_t1_t2.txt: /home/fbuonerba/exchange_rates_data/exchange_rate_b_q_t1.txt /home/fbuonerba/exchange_rates_data/exchange_rate_b_q_t2.txt
+	python3 compute_log_returns.py $(t1) $(b) $(q) $(dt)
 
-/home/fbuonerba/exchange_rates_data/exchange_rate_$(base)_$(quote)_$(shell echo $$(( $(unix_time) + $(interval) ))).txt:
-	python3 upload_rates.py $(shell echo $$(( $(unix_time) + $(interval) ))) $(base) $(quote)
+/home/fbuonerba/exchange_rates_data/exchange_rate_b_q_t1.txt:
+	python3 upload_rates.py $(t1) $(b) $(q) 
+
+/home/fbuonerba/exchange_rates_data/exchange_rate_b_q_t2.txt:
+	python3 upload_rates.py $(t2) $(b) $(q) 
 
 
 
