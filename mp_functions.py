@@ -121,3 +121,15 @@ def compute_log_return(unix_time, base, quote, interval):
     with open(name,'w') as ff:
         json.dump(log_ret,ff)
     return(log_ret)
+
+def upload_log_return(unix_time, base, quote, interval):
+    path2='/home/fbuonerba/log_returns_data/log_return_'
+    name=path2+str(base)+'_'+str(quote)+'_'+str(unix_time)+'_'+str(unix_time+interval)+'.txt'
+    try:
+        with open(name) as json_file:
+            log_return = json.load(json_file)    
+    except:
+        log_return=compute_log_return(unix_time, base, quote, interval) 
+    return(log_return)
+    
+    
