@@ -25,7 +25,11 @@ Unfortunately ohlcv is a bit tricky to use: a single request requires we specifi
 
 * The directory 'meta_data' contains files featuring names of coins, exchanges, etc. etc.
 
-* The file 'top_coins.txt' lists all coins we analyze. The file 'symbols.txt' contains those triples (exchange, base, quote) with base in 'top_coins.txt', quote = 'USD' or 'BTC', for which coinAPI has data. The file 'cmc_id_list.txt' contains a dictionary of coins in top_coins, together with their id_number from CoinMarketCap.
+* The file 'top_coins.txt' lists all coins we analyze. 
+
+* The file 'symbols.txt' contains those triples (exchange, base, quote) with 'exchange'!=BITMEX, base in 'top_coins.txt', quote in ['USD', 'BTC'], for which coinAPI has data. (There is an issue with BITMEX volume data quality).
+
+* The file 'cmc_id_list.txt' contains a dictionary of coins in top_coins, together with their id_number from CoinMarketCap.
 
 *Remark that coins listed in 'top_coins.txt' and those in 'cmc_id_list.txt' differ - the second is a subset of the first, with difference 'EUR','AIO','LIZA','HB' - unquestionably mysterious coins.
 

@@ -1,0 +1,18 @@
+digraph G {
+rankdir=LR
+compute_rates_high_low -> upload_rates;
+compute_log_return -> upload_rates;
+compute_coin_ratio;
+compute_log_marketcap -> upload_coin_number;
+compute_log_marketcap -> upload_rates;
+compute_turnover -> upload_ohlcv;
+compute_turnover -> upload_coin_number;
+upload_ohlcv -> request_ohlcv;
+request_ohlcv -> until_midnight;
+upload_coin_number;
+request_rates -> until_midnight;
+upload_rates -> request_rates;
+upload_log_return -> compute_log_return;
+compute_returns_strength -> upload_log_return;
+compute_returns_variance -> upload_log_return;
+}
