@@ -226,11 +226,11 @@ def compute_returns_variance(base, quote, begin, end, freq):
         if np.isnan(ret)==False:
             returns.append(ret)
         t+=freq
-    N=len(returns)
-    if N==0:
+    if returns==[]:
         variance=0
     else:
         variance = np.var(np.array(returns))
+        print(base, quote, 'var=',variance)
     with open('/home/fbuonerba/codes/factor_loadings/variance_'+sym+'.txt','w') as ff:
         json.dump(variance, ff)
     return(variance)
@@ -248,12 +248,12 @@ def compute_rates_high_low(base, quote, begin, end, freq):
         if rat!={}:
             rates.append(rat['rate'])
         t+=freq
-    N=len(rates)
-    if N==0:
+    if rates==[]:
         high_low=0
     else:
         rr=np.array(rates)
         high_low = np.log((np.max(rr))/(np.min(rr)))
+    print(base, quote, 'highlow=', high_low)
     with open('/home/fbuonerba/codes/factor_loadings/high_low_'+sym+'.txt','w') as ff:
         json.dump(high_low, ff)
     return(high_low)
@@ -270,12 +270,16 @@ def compute_returns_strength(base, quote, begin, end, freq):
         if np.isnan(ret)==False:
             returns.append(ret)
         t+=freq
-    N=len(returns)
-    if N==0:
+    if returns==[]:
         strength=0
     else:
-        strength=np.sum( np.log(1+np.array(returns)))
-    print(returns)
+        arr=1+np.array(returns)
+        arr=arr[arr>0]
+        if arr==[]:
+            strength=0
+        else:
+            strength=np.sum(np.log(arr))
+    print(base, quote, 'str=', strength)
     with open('/home/fbuonerba/codes/factor_loadings/strength_'+sym+'.txt','w') as ff:
         json.dump(strength, ff)
     return(strength)  
@@ -295,7 +299,11 @@ def compute_log_marketcap(base, quote, begin, end):
         if rate!={} and np.isnan(coin_no)==False:
             weekly_mkcaps.append(coin_no*rate['rate'])
         t+=604800
-    log_mkcap=np.log(np.mean(np.array(weekly_mkcaps)))
+    if weekly_mkcaps==[]:
+        log_mkcap=0
+    else:
+        log_mkcap=np.log(np.mean(np.array(weekly_mkcaps)))
+    print(base, quote, 'log_mkcap=', log_mkcap)
     with open('/home/fbuonerba/codes/factor_loadings/log_mkcap_'+sym+'.txt','w') as ff:
         json.dump(log_mkcap, ff)
     return(log_mkcap)  
@@ -328,10 +336,12 @@ def compute_turnover(base, quote, begin, end):
                 if ohlcv!=[]:
                     vol+=ohlcv[0]['volume_traded']
         weekly_volumes.append(vol)
-        print(weekly_volumes)
         t+=604800
-    if weekly_coins!=[]:
+    if weekly_coins==[]:
+        turnover=0
+    else:
         turnover=np.sum(np.array(weekly_volumes))/np.mean(np.array(weekly_coins))
+    print(t, base, quote, 'turnover=', turnover)
     with open('/home/fbuonerba/codes/factor_loadings/turnover_'+sym+'.txt','w') as ff:
         json.dump(turnover, ff)
     return(turnover)  
