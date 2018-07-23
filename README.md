@@ -37,4 +37,4 @@ Unfortunately ohlcv is a bit tricky to use: a single request requires we specifi
 
 * The directory 'ipynotebooks' contains python notebooks used to test codes and make quick experiments.
 
-[![solarized dualmode](https://github.com/etaleinc/coinAPI-data/blob/master/graph.png)]
+![graph](https://github.com/etaleinc/coinAPI-data/blob/master/graph.png)
