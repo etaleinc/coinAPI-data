@@ -20,6 +20,7 @@ while True:
     unix_time+=3600
     #Even though after time.time() every worker sleeps, this loop keeps creating workers.
     #It needs to be forced to sleep along with actual workers.
+    #results is detatched and runs in parallel with the 'if' below.
     if unix_time>=time.time():
         time.sleep(unix_time - time.time() + 5)
     
