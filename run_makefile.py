@@ -12,7 +12,7 @@ def worker(unix_time, base,quote, interval):
     pro.wait()
 #without pro.wait(), results(time=t) are started even if results(time=t-1) is not done.    
 #make -s : only error outputs.    
-unix_time=1514764800
+unix_time=1532458800
 interval=3600
 pool = mp.Pool()
 while True:

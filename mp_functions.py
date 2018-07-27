@@ -39,7 +39,7 @@ def request_rates(unix_time, base, quote):
     while True:
         #check if it's too early for such request:
         if unix_time+10>=time.time():
-            print('rates, wait ', unix_time-time.time()+10, 'seconds;', unix_time, base, quote)
+            print('rates, wait ', unix_time-time.time()+10, 'seconds;', 'unix_time=',unix_time, base, quote)
             time.sleep(unix_time-time.time()+10)
         try:
             exchange=api.exchange_rates_get_specific_rate(base, quote, {'time': utctime})
@@ -324,18 +324,26 @@ def compute_turnover(base, quote, begin, end):
             it_symbols.append(symbol)
     weekly_coins=[]
     weekly_volumes=[]
+    pool=mp.Pool()
     while t<=end + 1:
         vol=0
         coin_no=upload_coin_number(t,base)
         if np.isnan(coin_no)==False:
             weekly_coins.append(coin_no)
         #get ohlcv for the week, one per day, per symbol.
-        for symbol in it_symbols:
-            for j in range(7):
-                ohlcv=upload_ohlcv(t+86400*j,symbol,1)
-                if ohlcv!=[]:
-                    vol+=ohlcv[0]['volume_traded']
+        #do it in parallel to speed up multiple ohlcv requests
+        results=[pool.apply_async(upload_ohlcv, args=(t+86400*j,symbol,1,)) for symbol in it_symbols for j in range(7)]
+        output=[res.get() for res in results]
+        for out in output:
+            if out!=[]:
+                vol+=out[0]['volume_traded']
+#         for symbol in it_symbols:
+#             for j in range(7):
+#                 ohlcv=upload_ohlcv(t+86400*j,symbol,1)
+#                 if ohlcv!=[]:
+#                     vol+=ohlcv[0]['volume_traded']
         weekly_volumes.append(vol)
+        print(base, quote, t, weekly_volumes)
         t+=604800
     if weekly_coins==[]:
         turnover=0
@@ -378,7 +386,8 @@ def compute_coin_ratio(base, begin, end):
     return(coin_ratio)    
         
 
-
+#def compute_returns_matrix(base,quote,begin,end,freq):
+    
 
 
 
