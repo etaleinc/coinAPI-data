@@ -231,7 +231,7 @@ def compute_returns_variance(base, quote, begin, end, freq):
     else:
         variance = np.var(np.array(returns))
         print(base, quote, 'var=',variance)
-    with open('/home/fbuonerba/codes/factor_loadings/variance_'+sym+'.txt','w') as ff:
+    with open('/home/fbuonerba/factor_loadings/variance_'+sym+'.txt','w') as ff:
         json.dump(variance, ff)
     return(variance)
 
@@ -254,7 +254,7 @@ def compute_rates_high_low(base, quote, begin, end, freq):
         rr=np.array(rates)
         high_low = np.log((np.max(rr))/(np.min(rr)))
     print(base, quote, 'highlow=', high_low)
-    with open('/home/fbuonerba/codes/factor_loadings/high_low_'+sym+'.txt','w') as ff:
+    with open('/home/fbuonerba/factor_loadings/high_low_'+sym+'.txt','w') as ff:
         json.dump(high_low, ff)
     return(high_low)
 
@@ -280,7 +280,7 @@ def compute_returns_strength(base, quote, begin, end, freq):
         else:
             strength=np.sum(np.log(arr))
     print(base, quote, 'str=', strength)
-    with open('/home/fbuonerba/codes/factor_loadings/strength_'+sym+'.txt','w') as ff:
+    with open('/home/fbuonerba/factor_loadings/strength_'+sym+'.txt','w') as ff:
         json.dump(strength, ff)
     return(strength)  
 
@@ -304,7 +304,7 @@ def compute_log_marketcap(base, quote, begin, end):
     else:
         log_mkcap=np.log(np.mean(np.array(weekly_mkcaps)))
     print(base, quote, 'log_mkcap=', log_mkcap)
-    with open('/home/fbuonerba/codes/factor_loadings/log_mkcap_'+sym+'.txt','w') as ff:
+    with open('/home/fbuonerba/factor_loadings/log_mkcap_'+sym+'.txt','w') as ff:
         json.dump(log_mkcap, ff)
     return(log_mkcap)  
 
@@ -350,10 +350,20 @@ def compute_turnover(base, quote, begin, end):
     else:
         turnover=np.sum(np.array(weekly_volumes))/np.mean(np.array(weekly_coins))
     print(t, base, quote, 'turnover=', turnover)
-    with open('/home/fbuonerba/codes/factor_loadings/turnover_'+sym+'.txt','w') as ff:
+    with open('/home/fbuonerba/factor_loadings/turnover_'+sym+'.txt','w') as ff:
         json.dump(turnover, ff)
     return(turnover)  
-    
+
+def upload_turnover(base,quote,begin,end):
+    path='/home/fbuonerba/factor_loadings/turnover_'
+    sym=str(base)+'_'+str(quote)+'_'+str(begin)+'_'+str(end)+'.txt'
+    try:
+        with open(path+sym) as file:
+            turnover=json.load(file)
+    except:
+        turnover=compute_turnover(base,quote,begin,end)
+    return(turnover)
+
 def compute_coin_ratio(base, begin, end):
     #pick a recent file to see max number of coins ever.
     #If it doesn't exit, return 0 as coin is not listed on cmc.
@@ -381,15 +391,35 @@ def compute_coin_ratio(base, begin, end):
             t+=604800 
         #compute mean supply over period
         coin_ratio=np.mean(np.array(weekly_coins))/max_coins
-    with open('/home/fbuonerba/codes/factor_loadings/coin_ratio_'+str(base)+'.txt','w') as ff:
+    with open('/home/fbuonerba/factor_loadings/coin_ratio_'+str(base)+'.txt','w') as ff:
         json.dump(coin_ratio,ff)
     return(coin_ratio)    
         
+def compute_factor_loadings(base,quote,begin,end,freq):
+    sym=str(base)+'_'+str(quote)+'_'+str(begin)+'_'+str(end)+'_'+str(freq)
+    dictionary={}
+    dictionary['returns_variance']=compute_returns_variance(base,quote,begin,end,freq)
+    dictionary['rates_high_low']=compute_rates_high_low(base,quote,begin,end,freq)
+    dictionary['returns_strength']=compute_returns_strength(base,quote,begin,end,freq)
+    dictionary['log_marketcap']=compute_log_marketcap(base,quote,begin,end)
+    dictionary['turnover']=compute_turnover(base,quote,begin,end)
+    dictionary['coin_ratio']=compute_coin_ratio(base,begin,end)
+    with open('/home/fbuonerba/factor_loadings/factors_'+sym+'.txt','w') as file:
+        json.dump(dictionary,file)
+    return(dictionary)
+        
+def upload_factor_loadings(base,quote,begin,end,freq):
+    sym=str(base)+'_'+str(quote)+'_'+str(begin)+'_'+str(end)+'_'+str(freq)
+    try:
+        with open('/home/fbuonerba/factor_loadings/factors_'+sym+'.txt') as file:
+            factor_loadings=json.load(file)
+    except:
+        factor_loadings=compute_factor_loadings(base,quote,begin,end,freq)
+    return(factor_loadings)
 
-#def compute_returns_matrix(base,quote,begin,end,freq):
+
     
-
-
+    
 
     
     
