@@ -1,0 +1,12 @@
+Regression on April 1st returns.
+Factor loadings have been scaled by z-score.
+
+        factor_name      beta   t_stats
+0  returns_variance -0.001987 -0.450239
+1  returns_strength  0.010160  1.797171
+2  returns_high_low  0.005005  0.682049
+3          turnover -0.000110 -0.031699
+4         log_mkcap -0.010219 -1.937250
+5        coin_ratio  0.005506  1.512765
+   r_squared   F_score
+0   0.190144  3.208763
