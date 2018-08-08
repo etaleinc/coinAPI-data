@@ -285,7 +285,7 @@ def compute_returns_strength(base, quote, begin, end, freq):
     return(strength)  
 
 def compute_log_marketcap(base, quote, begin, end):
-    #log( price x coin_supply )
+    #average log( price x coin_supply )
     #frequency=1 week by default, because of cmc historical data availability; 
     # start Jan07=1515283200
     sym=str(base)+'_'+str(quote)+'_'+str(begin)+'_'+str(end)
@@ -308,7 +308,23 @@ def compute_log_marketcap(base, quote, begin, end):
         json.dump(log_mkcap, ff)
     return(log_mkcap)  
 
-
+def compute_log_marketcap_exact(base,quote,timee):
+    #log( prince x coin_supply )
+    sym=str(base)+'_'+str(quote)+'_'+str(timee)
+    coin_no=upload_coin_number(timee, base)
+    rate=upload_rates(timee, base, quote)
+    #rate is a dictionary
+    if rate!={} and np.isnan(coin_no)==False:
+        mkcap=coin_no*rate['rate']
+    else:
+        mkcap=0
+    print(base, quote, 'log_mkcap=', mkcap)
+    with open('/home/fbuonerba/factor_loadings/log_mkcap_exact_'+sym+'.txt','w') as ff:
+        json.dump(mkcap, ff)
+    return(mkcap)
+    
+    
+    
 def compute_turnover(base, quote, begin, end):
     #total_traded_volume/average_coin_supply
     #frequency=1 week by default, because of cmc historical data availability; 
@@ -393,7 +409,29 @@ def compute_coin_ratio(base, begin, end):
         coin_ratio=np.mean(np.array(weekly_coins))/max_coins
     with open('/home/fbuonerba/factor_loadings/coin_ratio_'+str(base)+'.txt','w') as ff:
         json.dump(coin_ratio,ff)
-    return(coin_ratio)    
+    return(coin_ratio)  
+
+def compute_coin_ratio_exact(base, timee):
+    try:
+        with open('/home/fbuonerba/cmc_data/cmc_'+str(base)+'_1532304000.txt') as iif:
+            dat=json.load(iif)
+        max_coins=dat['max_supply']
+    except Exception as e:
+        print(e, base)
+        max_coins=None
+    if max_coins==None:
+        coin_ratio=0
+    else:
+        with open('/home/fbuonerba/cmc_data/cmc_historical_'+str(timee)+'.txt') as uuf:
+            data=json.load(uuf)
+        if base=='IOTA':
+            supply=data['MIOTA']['supply']
+        else:
+            supply=data[str(base)]['supply']    
+        coin_ratio=supply/max_coins
+    with open('/home/fbuonerba/factor_loadings/coin_ratio_exact_'+str(base)+'_'+str(timee)+'.txt','w') as ff:
+        json.dump(coin_ratio,ff)
+    return(coin_ratio)
         
 def compute_factor_loadings(base,quote,begin,end,freq):
     sym=str(base)+'_'+str(quote)+'_'+str(begin)+'_'+str(end)+'_'+str(freq)
