@@ -17,28 +17,19 @@ with open('/home/fbuonerba/codes/meta_data/top_coins.txt') as ff:
     coins=json.load(ff)
 quotes=['USD','BTC']
 
-for b in coins:
-    for q in quotes:
-        for t in range(16):
-            ut(b,q,beg[t],end[t])
+#for b in coins:
+#    for q in quotes:
+#        for t in range(16):
+#            ut(b,q,beg[t],end[t])
 
-# from mp_functions import compute_returns_variance as crv
-# from mp_functions import compute_rates_high_low as crhl
-# from mp_functions import compute_returns_strength as crs
-# from mp_functions import compute_log_marketcap as clm
-# from mp_functions import compute_turnover as ct
-# from mp_functions import compute_coin_ratio as ccr
-
-# import multiprocessing as mp
-# import json
-
-# begin=1517702400
-# end=1525564800
-# freq=604800
+from mp_functions import compute_returns_variance as crv
+from mp_functions import compute_rates_high_low as crhl
+from mp_functions import compute_returns_strength as crs
+from mp_functions import compute_log_marketcap as clm
+from mp_functions import compute_turnover as ct
+from mp_functions import compute_coin_ratio as ccr
 
 
-        
-
-# pool=mp.Pool()
-# results=[pool.apply_async(crv, args=(base,quote,begin,end,freq,) ) for base in coins for quote in quotes]+[pool.apply_async(crs, args=(base,quote,begin,end,freq,) ) for base in coins for quote in quotes]+[pool.apply_async(crhl, args=(base,quote,begin,end,freq,) ) for base in coins for quote in quotes]+[pool.apply_async(clm, args=(base,quote,begin,end,) ) for base in coins for quote in quotes]+[pool.apply_async(ccr, args=(base,begin,end,) ) for base in coins]
-# output = [res.get() for res in results]
+pool=mp.Pool()
+results=[pool.apply_async(crv, args=(base,quote,b,e,freq,) ) for base in coins for quote in quotes for b in beg for e in end]+[pool.apply_async(crs, args=(base,quote,b,e,freq,) ) for base in coins for quote in quotes for b in beg for e in end]+[pool.apply_async(crhl, args=(base,quote,b,e,freq,) ) for base in coins for quote in quotes for b in beg for e in end]+[pool.apply_async(clm, args=(base,quote,b,e,) ) for base in coins for quote in quotes for b in beg for e in end]+[pool.apply_async(ccr, args=(base,b,e,) ) for base in coins for b in beg for e in end]
+output = [res.get() for res in results]
