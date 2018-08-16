@@ -1,0 +1,311 @@
+Regression on returns from April 2nd to May 2nd.
+Factors have been computed for April 1st.
+Definition of factors, for each coin pair:
+*returns_variance = var(returns_t), over weekly returns Jan 7th-Apr 1st.
+*returns_strength=sum_t( log(1+return_t) ) over returns as above.
+*returns_high_low=log( max_t(return_t)/min_t(return_t) ) over returns as above.
+*turnover=(total traded volume)/(average coin supply) over trades Jan 7th-Apr 1st.
+*log_mkcap=average_t( log(coin_supply_t*price_t) ) over weekly supply and price Jan 7th-Apr 1st.
+*coin_ratio=average_t(coin_supply_t/coin_supply_ever) over weekly supply as above.
+Factor loadings have been scaled by z-score.
+
+         factor_name      beta  std_error   z_score
+0    returns_variance  0.005673   0.005078  1.117177
+1    returns_strength -0.008909   0.006503 -1.369943
+2    returns_high_low -0.007724   0.008441 -0.915063
+3            turnover  0.008477   0.003995  2.121834
+4   average_log_mkcap  0.014429   0.006068  2.377955
+5  average_coin_ratio -0.007560   0.004187 -1.805513
+6                   1  0.025469   0.003956  6.438264
+   r_squared   F_score
+0   0.216551  3.777567
+          factor_name      beta  std_error   z_score
+0    returns_variance -0.001273   0.008117 -0.156793
+1    returns_strength -0.008893   0.010396 -0.855381
+2    returns_high_low  0.027772   0.013494  2.058096
+3            turnover -0.005393   0.006386 -0.844455
+4   average_log_mkcap  0.001225   0.009700  0.126265
+5  average_coin_ratio  0.019901   0.006693  2.973272
+6                   1  0.046658   0.006324  7.378179
+   r_squared   F_score
+0   0.351459  7.406265
+          factor_name      beta  std_error    z_score
+0    returns_variance -0.006889   0.005077  -1.356757
+1    returns_strength  0.028334   0.006503   4.357443
+2    returns_high_low  0.010838   0.008440   1.284132
+3            turnover  0.004334   0.003995   1.084946
+4   average_log_mkcap -0.029268   0.006067  -4.824050
+5  average_coin_ratio -0.000752   0.004187  -0.179718
+6                   1 -0.052053   0.003955 -13.159829
+   r_squared    F_score
+0   0.620037  22.301711
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.015947   0.007096  2.247378
+1    returns_strength -0.004041   0.009088 -0.444718
+2    returns_high_low -0.017485   0.011796 -1.482271
+3            turnover  0.008683   0.005583  1.555351
+4   average_log_mkcap  0.011908   0.008479  1.404402
+5  average_coin_ratio -0.010554   0.005851 -1.803856
+6                   1  0.012223   0.005528  2.211031
+   r_squared   F_score
+0   0.105795  1.616935
+          factor_name      beta  std_error   z_score
+0    returns_variance -0.006462   0.003898 -1.657490
+1    returns_strength  0.015212   0.004993  3.046738
+2    returns_high_low  0.012788   0.006481  1.973322
+3            turnover  0.000712   0.003067  0.232295
+4   average_log_mkcap -0.010377   0.004659 -2.227601
+5  average_coin_ratio  0.000183   0.003215  0.056782
+6                   1 -0.016913   0.003037 -5.568677
+   r_squared   F_score
+0   0.247996  4.506993
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.005707   0.003998  1.427296
+1    returns_strength -0.013499   0.005121 -2.636142
+2    returns_high_low -0.012746   0.006647 -1.917731
+3            turnover  0.000446   0.003146  0.141659
+4   average_log_mkcap  0.011149   0.004778  2.333458
+5  average_coin_ratio  0.001920   0.003297  0.582443
+6                   1  0.010233   0.003115  3.285240
+   r_squared   F_score
+0   0.224591  3.958433
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.002439   0.002471  0.986695
+1    returns_strength -0.009025   0.003165 -2.851277
+2    returns_high_low -0.001763   0.004108 -0.429242
+3            turnover -0.001199   0.001944 -0.616591
+4   average_log_mkcap  0.004539   0.002953  1.536827
+5  average_coin_ratio  0.003971   0.002038  1.948688
+6                   1  0.014782   0.001925  7.677614
+   r_squared   F_score
+0   0.355488  7.537992
+          factor_name      beta  std_error   z_score
+0    returns_variance -0.004949   0.007287 -0.679096
+1    returns_strength  0.004926   0.009333  0.527859
+2    returns_high_low  0.028696   0.012114  2.368851
+3            turnover  0.002225   0.005733  0.388084
+4   average_log_mkcap -0.025046   0.008708 -2.876182
+5  average_coin_ratio  0.007040   0.006009  1.171646
+6                   1  0.006726   0.005677  1.184727
+   r_squared   F_score
+0   0.115222  1.779767
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.012909   0.008828  1.462359
+1    returns_strength -0.010679   0.011306 -0.944522
+2    returns_high_low  0.000786   0.014675  0.053549
+3            turnover  0.008831   0.006945  1.271499
+4   average_log_mkcap -0.006656   0.010549 -0.630944
+5  average_coin_ratio -0.000414   0.007279 -0.056900
+6                   1  0.027928   0.006877  4.060918
+   r_squared   F_score
+0   0.080064  1.189445
+          factor_name      beta  std_error   z_score
+0    returns_variance -0.006038   0.007529 -0.801994
+1    returns_strength  0.011123   0.009643  1.153567
+2    returns_high_low  0.007895   0.012516  0.630807
+3            turnover -0.003553   0.005924 -0.599881
+4   average_log_mkcap  0.016611   0.008997  1.846263
+5  average_coin_ratio  0.014510   0.006208  2.337184
+6                   1  0.029329   0.005866  5.000135
+   r_squared   F_score
+0   0.159396  2.591493
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.001866   0.007565  0.246662
+1    returns_strength -0.051908   0.009689 -5.357518
+2    returns_high_low -0.033693   0.012576 -2.679133
+3            turnover -0.015066   0.005952 -2.531274
+4   average_log_mkcap  0.034051   0.009040  3.766725
+5  average_coin_ratio  0.005140   0.006238  0.823937
+6                   1  0.044310   0.005894  7.518417
+   r_squared    F_score
+0   0.530717  15.455747
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.010630   0.011791  0.901496
+1    returns_strength -0.015006   0.015101 -0.993697
+2    returns_high_low  0.008173   0.019601  0.416956
+3            turnover  0.004317   0.009277  0.465409
+4   average_log_mkcap -0.010675   0.014090 -0.757606
+5  average_coin_ratio -0.018987   0.009723 -1.952838
+6                   1  0.017459   0.009186  1.900616
+   r_squared   F_score
+0   0.100672  1.529868
+          factor_name      beta  std_error   z_score
+0    returns_variance -0.008787   0.007008 -1.253896
+1    returns_strength  0.006397   0.008975  0.712807
+2    returns_high_low -0.000404   0.011649 -0.034657
+3            turnover -0.003153   0.005513 -0.571959
+4   average_log_mkcap  0.017261   0.008374  2.061370
+5  average_coin_ratio -0.001055   0.005778 -0.182604
+6                   1  0.002776   0.005459  0.508440
+   r_squared   F_score
+0   0.078696  1.167388
+          factor_name      beta  std_error   z_score
+0    returns_variance -0.007948   0.005250 -1.513844
+1    returns_strength -0.016827   0.006724 -2.502621
+2    returns_high_low  0.002064   0.008727  0.236452
+3            turnover -0.004300   0.004130 -1.041006
+4   average_log_mkcap  0.016082   0.006273  2.563531
+5  average_coin_ratio  0.003184   0.004329  0.735623
+6                   1  0.027980   0.004090  6.841216
+   r_squared   F_score
+0   0.403321  9.237873
+          factor_name      beta  std_error   z_score
+0    returns_variance -0.003536   0.005957 -0.593529
+1    returns_strength  0.017666   0.007629  2.315584
+2    returns_high_low  0.019951   0.009903  2.014613
+3            turnover  0.002684   0.004687  0.572694
+4   average_log_mkcap -0.009830   0.007119 -1.380953
+5  average_coin_ratio  0.002905   0.004912  0.591414
+6                   1 -0.003021   0.004641 -0.651056
+   r_squared   F_score
+0   0.102389  1.558929
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.002546   0.006650  0.382805
+1    returns_strength  0.001026   0.008516  0.120472
+2    returns_high_low  0.003553   0.011054  0.321396
+3            turnover  0.006099   0.005232  1.165769
+4   average_log_mkcap  0.004009   0.007946  0.504540
+5  average_coin_ratio -0.010077   0.005483 -1.837809
+6                   1  0.000889   0.005180  0.171698
+   r_squared   F_score
+0   0.067615  0.991085
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.017208   0.008415  2.044915
+1    returns_strength -0.013443   0.010777 -1.247419
+2    returns_high_low -0.022695   0.013988 -1.622432
+3            turnover  0.007833   0.006620  1.183106
+4   average_log_mkcap  0.028011   0.010055  2.785687
+5  average_coin_ratio -0.013888   0.006939 -2.001609
+6                   1  0.060888   0.006556  9.288094
+   r_squared   F_score
+0   0.196277  3.337537
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.005999   0.007071  0.848350
+1    returns_strength -0.028130   0.009057 -3.106035
+2    returns_high_low  0.003347   0.011755  0.284685
+3            turnover  0.008369   0.005563  1.504282
+4   average_log_mkcap -0.012609   0.008450 -1.492146
+5  average_coin_ratio  0.002775   0.005831  0.475844
+6                   1  0.039522   0.005509  7.174012
+   r_squared   F_score
+0   0.237598  4.259134
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.000791   0.006812  0.116076
+1    returns_strength -0.025888   0.008724 -2.967270
+2    returns_high_low -0.022038   0.011324 -1.946079
+3            turnover -0.012346   0.005359 -2.303632
+4   average_log_mkcap  0.028057   0.008140  3.446737
+5  average_coin_ratio  0.009787   0.005617  1.742406
+6                   1  0.023159   0.005307  4.363954
+   r_squared   F_score
+0   0.383786  8.511782
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.005745   0.006348  0.904959
+1    returns_strength -0.016890   0.008130 -2.077406
+2    returns_high_low -0.010202   0.010553 -0.966706
+3            turnover  0.001758   0.004995  0.351983
+4   average_log_mkcap -0.014298   0.007586 -1.884704
+5  average_coin_ratio -0.000828   0.005235 -0.158186
+6                   1 -0.027279   0.004946 -5.515622
+   r_squared   F_score
+0   0.095867  1.449096
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.004635   0.003938  1.176934
+1    returns_strength  0.003492   0.005044  0.692273
+2    returns_high_low  0.001971   0.006547  0.300987
+3            turnover  0.007851   0.003098  2.533983
+4   average_log_mkcap  0.001483   0.004706  0.315117
+5  average_coin_ratio -0.000684   0.003247 -0.210769
+6                   1  0.017403   0.003068  5.672261
+   r_squared   F_score
+0   0.111192  1.709733
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.016884   0.005453  3.096038
+1    returns_strength -0.021956   0.006984 -3.143668
+2    returns_high_low -0.008262   0.009066 -0.911353
+3            turnover  0.004847   0.004290  1.129669
+4   average_log_mkcap  0.003376   0.006517  0.518039
+5  average_coin_ratio  0.000179   0.004497  0.039846
+6                   1  0.031078   0.004248  7.314970
+   r_squared   F_score
+0   0.318636  6.391143
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.002580   0.007984  0.323107
+1    returns_strength -0.016818   0.010225 -1.644809
+2    returns_high_low -0.019389   0.013272 -1.460939
+3            turnover -0.007841   0.006281 -1.248327
+4   average_log_mkcap  0.035923   0.009540  3.765449
+5  average_coin_ratio -0.004825   0.006583 -0.732957
+6                   1  0.015974   0.006220  2.568336
+   r_squared   F_score
+0   0.285196  5.452786
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.007558   0.012787  0.591078
+1    returns_strength  0.027699   0.016376  1.691457
+2    returns_high_low -0.005144   0.021256 -0.241985
+3            turnover -0.009336   0.010060 -0.928086
+4   average_log_mkcap -0.047842   0.015280 -3.131098
+5  average_coin_ratio  0.003001   0.010543  0.284646
+6                   1 -0.050455   0.009961 -5.065037
+   r_squared   F_score
+0   0.379558  8.360655
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.000970   0.006574  0.147588
+1    returns_strength -0.016516   0.008420 -1.961656
+2    returns_high_low -0.017304   0.010929 -1.583410
+3            turnover  0.007967   0.005172  1.540285
+4   average_log_mkcap  0.018520   0.007856  2.357433
+5  average_coin_ratio -0.003881   0.005421 -0.715945
+6                   1  0.046759   0.005122  9.129839
+   r_squared  F_score
+0   0.164309  2.68707
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.002383   0.006610  0.360542
+1    returns_strength  0.006518   0.008466  0.769860
+2    returns_high_low -0.002329   0.010989 -0.211939
+3            turnover  0.000236   0.005201  0.045455
+4   average_log_mkcap -0.016391   0.007899 -2.074987
+5  average_coin_ratio -0.003437   0.005451 -0.630475
+6                   1 -0.003164   0.005150 -0.614327
+   r_squared   F_score
+0    0.19537  3.318375
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.005133   0.007133  0.719605
+1    returns_strength -0.022361   0.009135 -2.447962
+2    returns_high_low -0.008445   0.011857 -0.712269
+3            turnover  0.003564   0.005612  0.635104
+4   average_log_mkcap  0.004847   0.008523  0.568739
+5  average_coin_ratio  0.002411   0.005881  0.409985
+6                   1  0.042938   0.005557  7.727518
+   r_squared   F_score
+0   0.152085  2.451294
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.010444   0.010597  0.985510
+1    returns_strength -0.018649   0.013572 -1.374115
+2    returns_high_low -0.004971   0.017616 -0.282158
+3            turnover  0.007649   0.008337  0.917476
+4   average_log_mkcap -0.016060   0.012663 -1.268215
+5  average_coin_ratio  0.000075   0.008738  0.008560
+6                   1  0.034879   0.008256  4.224807
+   r_squared   F_score
+0   0.054986  0.795206
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.008265   0.012949  0.638257
+1    returns_strength -0.001128   0.016584 -0.068038
+2    returns_high_low -0.013626   0.021526 -0.633002
+3            turnover -0.000974   0.010188 -0.095563
+4   average_log_mkcap -0.020802   0.015474 -1.344322
+5  average_coin_ratio -0.007703   0.010677 -0.721426
+6                   1 -0.010134   0.010088 -1.004563
+   r_squared   F_score
+0   0.101051  1.536279
+          factor_name      beta  std_error   z_score
+0    returns_variance  0.002711   0.005153  0.526013
+1    returns_strength  0.016325   0.006600  2.473607
+2    returns_high_low  0.005919   0.008566  0.690898
+3            turnover  0.003273   0.004054  0.807276
+4   average_log_mkcap  0.008672   0.006158  1.408254
+5  average_coin_ratio  0.004614   0.004249  1.085832
+6                   1  0.012286   0.004015  3.060338
+   r_squared   F_score
+0   0.138409  2.195465
