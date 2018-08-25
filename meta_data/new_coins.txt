@@ -1,0 +1,1 @@
+["BTC", "ETH", "XRP", "BCH", "EOS", "XLM", "LTC", "ADA", "XMR", "IOTA", "TRX", "ETC", "DASH", "NEO", "XEM", "BNB", "XTZ", "VET", "ZEC", "OMG", "LSK", "ZRX", "QTUM", "ONT", "BTG", "DCR", "BCN", "MKR", "DOGE", "BTS", "ZIL", "DGB", "ICX", "STEEM", "NANO", "AE", "WAVES", "BAT", "SC", "REP", "XVG", "PPT", "BTM", "BCD", "NPXS", "RHOC", "GNT", "STRAT"]

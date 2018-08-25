@@ -5,7 +5,7 @@ from datetime import datetime, time
 import requests
 
 meta_path='/home/fbuonerba/codes/meta_data/'
-with open(meta_path+'cmc_id_list.txt') as filee:
+with open(meta_path+'new_cmc_id.txt') as filee:
     diction=json.load(filee)
 headers = {'Accept': 'text/html'}
 midnight = datetime.combine(datetime.today(), time.min)

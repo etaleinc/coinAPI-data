@@ -2,17 +2,22 @@ digraph G {
 rankdir=LR
 compute_rates_high_low -> upload_rates;
 compute_log_return -> upload_rates;
+compute_log_marketcap_exact -> upload_coin_number;
+compute_log_marketcap_exact -> upload_rates;
 compute_coin_ratio;
 compute_log_marketcap -> upload_coin_number;
 compute_log_marketcap -> upload_rates;
 compute_turnover -> upload_coin_number;
 upload_ohlcv -> request_ohlcv;
 request_ohlcv -> until_midnight;
+upload_turnover -> compute_turnover;
 upload_coin_number;
 request_rates -> until_midnight;
 upload_rates -> request_rates;
+compute_coin_ratio_exact;
 compute_factor_loadings -> compute_rates_high_low;
 compute_factor_loadings -> compute_coin_ratio;
+compute_factor_loadings -> compute_log_marketcap;
 compute_factor_loadings -> compute_turnover;
 compute_factor_loadings -> compute_returns_variance;
 compute_factor_loadings -> compute_returns_strength;

@@ -11,6 +11,7 @@ import time
 import calendar
 import json
 import urllib.request
+import requests
 import multiprocessing as mp
 from bs4 import BeautifulSoup
 
@@ -91,12 +92,50 @@ def request_ohlcv(unix_time, sym_id, limit):
                 #print(err, unix_time, 'unavailable data')
                 for j in range(limit):
                     with open(path+sym_id+'_'+str(unix_time+j*86400)+'_'+str(unix_time+(j+1)*86400)+'.txt', 'w') as ff:
-                        json.dump({},ff)
+                        json.dump([],ff)
                 #unavailable data
                 return( [] )     
             
 
-
+def request_ohlcv_weekly(unix_time, sym_id):
+    path='/home/fbuonerba/ohlcv_data/ohlcv_'
+    utctime = datetime.utcfromtimestamp(unix_time).strftime('%Y-%m-%dT%H:%M:%S')
+    while True:
+        #check if it's too early for such request:
+        now=time.time()
+        if unix_time + 604800>=now:
+            print('weekly ohlcv', unix_time, sym_id, 'wait for: seconds', unix_time+604805-now)
+            time.sleep(unix_time+604805-now)
+        #if it's not too early, try and send a request.
+        try:
+            ohlcv=api.ohlcv_historical_data(sym_id, {'period_id': '7DAY', 'time_start':utctime})
+            if len(ohlcv)>0:
+                for j in range(len(ohlcv)):
+                    with open(path+sym_id+'_'+str(unix_time+j*604800)+'_'+str(unix_time+(j+1)*604800)+'.txt', 'w') as ff:
+                        json.dump(ohlcv[j],ff)
+                return ohlcv[0]
+            else:
+                for j in range(len(ohlcv)):
+                    with open(path+sym_id+'_'+str(unix_time+j*604800)+'_'+str(unix_time+(j+1)*604800)+'.txt', 'w') as ff:
+                        json.dump([],ff)
+                return ohlcv
+        except urllib.error.HTTPError as err:
+            if err.code==429:
+                print(err.code, unix_time)
+                #exceeded daily requests
+                time.sleep(until_midnight())
+            elif err.code==401:
+                print(err.code, unix_time)
+                #invalid api key
+                break
+            else:
+                #print(err, unix_time, 'unavailable data')
+                for j in range(limit):
+                    with open(path+sym_id+'_'+str(unix_time+j*604800)+'_'+str(unix_time+(j+1)*604800)+'.txt', 'w') as ff:
+                        json.dump([],ff)
+                #unavailable data
+                return( [] )  
+    
             
 def upload_rates(unix_time, base, quote):
     path='/home/fbuonerba/exchange_rates_data/'
@@ -109,14 +148,27 @@ def upload_rates(unix_time, base, quote):
     
 
 def upload_ohlcv(unix_time, sym_id, limit):
-    path='/home/fbuonerba/ohlcv_data/'
+    path='/home/fbuonerba/ohlcv_data/ohlcv_'
     try:
         with open(path+sym_id+'_'+str(unix_time)+'_'+str(unix_time+86400)+'.txt') as json_file:
             ohlcv = json.load(json_file)    
     except:
-        ohlcv=request_ohlcv(unix_time, sym_id, limit) 
+        ohlcv=request_ohlcv(unix_time, sym_id, limit)
+        if len(ohlcv)>0:
+            ohlcv=ohlcv[0]
+    #given the structure, if no data is available there is [], otherwise its a list with 1 entry.
+    return(ohlcv)
+
+def upload_ohlcv_weekly(unix_time,sym_id):
+    path='/home/fbuonerba/ohlcv_data/ohlcv_'
+    try:
+        with open(path+sym_id+'_'+str(unix_time)+'_'+str(unix_time+604800)+'.txt') as json_file:
+            ohlcv = json.load(json_file)    
+    except:
+        ohlcv=request_ohlcv_weekly(unix_time, sym_id) 
     return(ohlcv)
     
+
 def compute_log_return(unix_time, base, quote, interval):
     ret1=upload_rates(unix_time,base,quote)
     ret2=upload_rates(unix_time+interval,base,quote)
@@ -142,8 +194,10 @@ def upload_log_return(unix_time, base, quote, interval):
 
 def request_cmc_historical(date):
     #date=YYYYMMDD
-    web_data= urllib.request.urlopen('https://coinmarketcap.com/historical/'+str(date)+'/')
-    cmc_data=web_data.read()
+    headers = {'Accept': 'text/html'}
+    url='https://coinmarketcap.com/historical/'+str(date)+'/'
+    web_data= requests.get(url, headers=headers)
+    cmc_data=web_data.content
     soup=BeautifulSoup(cmc_data, 'html.parser')
     #scrape volumes
     Vol=[]
@@ -153,16 +207,30 @@ def request_cmc_historical(date):
         x=x.replace('Low Vol','0')
         x=int(float(x))
         Vol.append(x)
-    #scrape supplies    
+    #scrape supplies. This is tricky since for some reasons tag change over time.
+    #sometimes it is <a data-supply... sometimes it is <span data-supply...
+    So=soup.find_all('td')
     Supply=[]
-    SoSupply=soup.find_all('a',{'data-supply':True})
-    for x in SoSupply:
-        x=x.contents[0].strip('\n').replace(',','')
-        if '?' in x:
-            x=float('nan')
-        else:
-            x=int(float(x))
-        Supply.append(x)
+    for x in So:
+        if x.contents[0]=='\n':
+            z=str(x.contents[1])
+            if 'data-supply' in z:
+                y=z.split('=')[1].split('data')[0].split('"')[1]
+                if y=='None':
+                    y=float('nan')
+                else:
+                    y=float(y)
+                Supply.append(y)
+    #previous version
+    #Supply=[]
+    #SoSupply=soup.find_all('span',{'data-supply':True})
+    #for x in SoSupply:
+    #    x=x.contents[0].strip('\n').replace(',','')
+    #    if '?' in x:
+    #        x=float('nan')
+    #    else:
+    #        x=int(float(x))
+    #    Supply.append(x)
     #scrape prices  
     Price=[]
     SoPrice=soup.find_all(class_='price')
@@ -180,10 +248,10 @@ def request_cmc_historical(date):
     data={}
     for i in range(len(Supply)):
         data[Syms[i]]={'volume': Vol[i], 'price': Price[i], 'supply': Supply[i]}
-    with open('/home/fbuonerba/codes/meta_data/cmc_id_list.txt') as ff:
+    with open('/home/fbuonerba/codes/meta_data/new_cmc_id.txt') as ff:
         coins=json.load(ff)
-    #reduce the dictionary to include only top_coins.
-    #Possible errors if top_coins do not appear in data.keys()
+    #reduce the dictionary to include only new_coins.
+    #Possible errors if new_coins do not appear in data.keys()
     finaldictio={}
     for c in coins.values():
         try:
@@ -309,7 +377,7 @@ def compute_log_marketcap(base, quote, begin, end):
     return(log_mkcap)  
 
 def compute_log_marketcap_exact(base,quote,timee):
-    #log( prince x coin_supply )
+    #log( price x coin_supply )
     sym=str(base)+'_'+str(quote)+'_'+str(timee)
     coin_no=upload_coin_number(timee, base)
     rate=upload_rates(timee, base, quote)
@@ -331,7 +399,7 @@ def compute_turnover(base, quote, begin, end):
     # start Jan07=1515283200
     sym=str(base)+'_'+str(quote)+'_'+str(begin)+'_'+str(end)
     t=begin
-    with open('/home/fbuonerba/codes/meta_data/symbols.txt') as ff:
+    with open('/home/fbuonerba/codes/meta_data/new_symbols.txt') as ff:
         symbols=json.load(ff)
     it_symbols=[]
     #pick symbols with required base and quote from all coinapi symbols.
@@ -346,26 +414,30 @@ def compute_turnover(base, quote, begin, end):
         coin_no=upload_coin_number(t,base)
         if np.isnan(coin_no)==False:
             weekly_coins.append(coin_no)
-        #get ohlcv for the week, one per day, per symbol.
+        #get ohlcv for the week, one per symbol.
         #do it in parallel to speed up multiple ohlcv requests
+#         results=[pool.apply_async(upload_ohlcv_weekly, args=(t,symbol,)) for symbol in it_symbols]
+#         output=[res.get() for res in results]
+#         for out in output:
+#             if out!=[]:
+#                 vol+=out[0]['volume_traded']
+
+
+        #here we do using daily volumes.       
         results=[pool.apply_async(upload_ohlcv, args=(t+86400*j,symbol,1,)) for symbol in it_symbols for j in range(7)]
-        output=[res.get() for res in results]
+        output=[res.get() for res in results]        
         for out in output:
-            if out!=[]:
-                vol+=out[0]['volume_traded']
-#         for symbol in it_symbols:
-#             for j in range(7):
-#                 ohlcv=upload_ohlcv(t+86400*j,symbol,1)
-#                 if ohlcv!=[]:
-#                     vol+=ohlcv[0]['volume_traded']
+            if (out!=[] and out!={}):
+                vol+=out['volume_traded']
         weekly_volumes.append(vol)
-        print(base, quote, t, weekly_volumes)
         t+=604800
+    pool.close()#this is to avoid overloading memory
+    pool.join()
     if weekly_coins==[]:
         turnover=0
     else:
         turnover=np.sum(np.array(weekly_volumes))/np.mean(np.array(weekly_coins))
-    print(t, base, quote, 'turnover=', turnover)
+    print(base, quote, 'turnover=', turnover)
     with open('/home/fbuonerba/factor_loadings/turnover_'+sym+'.txt','w') as ff:
         json.dump(turnover, ff)
     return(turnover)  
@@ -384,7 +456,7 @@ def compute_coin_ratio(base, begin, end):
     #pick a recent file to see max number of coins ever.
     #If it doesn't exit, return 0 as coin is not listed on cmc.
     try:
-        with open('/home/fbuonerba/cmc_data/cmc_'+str(base)+'_1532304000.txt') as iif:
+        with open('/home/fbuonerba/cmc_data/cmc_'+str(base)+'_1534896000.txt') as iif:
             dat=json.load(iif)
         max_coins=dat['max_supply']
     except Exception as e:
@@ -413,7 +485,7 @@ def compute_coin_ratio(base, begin, end):
 
 def compute_coin_ratio_exact(base, timee):
     try:
-        with open('/home/fbuonerba/cmc_data/cmc_'+str(base)+'_1532304000.txt') as iif:
+        with open('/home/fbuonerba/cmc_data/cmc_'+str(base)+'_1534896000.txt') as iif:
             dat=json.load(iif)
         max_coins=dat['max_supply']
     except Exception as e:
@@ -434,6 +506,7 @@ def compute_coin_ratio_exact(base, timee):
     return(coin_ratio)
         
 def compute_factor_loadings(base,quote,begin,end,freq):
+    #frequency for factors involving coin supply is one week.
     sym=str(base)+'_'+str(quote)+'_'+str(begin)+'_'+str(end)+'_'+str(freq)
     dictionary={}
     dictionary['returns_variance']=compute_returns_variance(base,quote,begin,end,freq)
@@ -442,6 +515,7 @@ def compute_factor_loadings(base,quote,begin,end,freq):
     dictionary['log_marketcap']=compute_log_marketcap(base,quote,begin,end)
     dictionary['turnover']=compute_turnover(base,quote,begin,end)
     dictionary['coin_ratio']=compute_coin_ratio(base,begin,end)
+    sys.stdout.flush()#force print
     with open('/home/fbuonerba/factor_loadings/factors_'+sym+'.txt','w') as file:
         json.dump(dictionary,file)
     return(dictionary)
