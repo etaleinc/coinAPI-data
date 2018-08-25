@@ -1,0 +1,6 @@
+t=$(unix_time)
+s=$(sym_id)
+t1=$(shell echo $$(( $(unix_time) + $(86400))))
+
+/home/fbuonerba/ohlcv_data/ohlcv_s_t_t1.txt:
+	python3 upload_ohlcv.py $(t) $(s)
