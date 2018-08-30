@@ -2,7 +2,6 @@ from mp_functions import request_rates, request_ohlcv
 import subprocess
 import json
 import time
-import sys
 import multiprocessing as mp
 
 #def worker1(unix_time, base, quote):
@@ -22,12 +21,10 @@ T=time.time()
 unix_time=int(T-T%3600)
 pool=mp.Pool()
 interval=86400
-res1=[pool.apply_async(request_rates, args=(unix_time,base,quote,)) for base in coins for quote in quotes]
-out1=[res.get() for res in res1]
+res=[pool.apply_async(request_rates, args=(unix_time,base,quote,)) for base in coins for quote in quotes]
 if unix_time%86400==0:
-    res2=[pool.apply_async(request_ohlcv, args=(unix_time,sym,1,)) for sym in symbols]
-    out2=[res.get() for res in res2]
-sys.stdout.flush()
+    res+=[pool.apply_async(request_ohlcv, args=(unix_time-86400,sym,1,)) for sym in symbols]
+out=[r.get() for r in res]
 #results1=[pool.apply_async(worker1, args=(unix_time-interval,base,quote,interval,) ) for base in coins for quote in quotes]
 
 #results2=[pool.apply_async(worker2, args=(unix_time-interval,sym_id,) ) for sym_id in symbols]
