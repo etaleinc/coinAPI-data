@@ -267,8 +267,19 @@ def request_cmc_historical(date):
     with open('/home/fbuonerba/cmc_data/cmc_historical_'+str(unix_time)+'.txt','w') as fff:
         json.dump(finaldictio,fff)
     return(finaldictio)
-    
-def upload_coin_number(t, base):
+
+def previous_sunday(t):
+    delta=t%604800
+    if delta<259200:
+        correct=259200-604800-delta
+    else:
+        correct=259200-delta
+    t=t+correct
+    return(t)
+
+
+def upload_historical_coin_number(t, base):
+    t=previous_sunday(t)
     with open('/home/fbuonerba/cmc_data/cmc_historical_'+str(t)+'.txt') as ff:
         data=json.load(ff)
     if base=='IOTA':
@@ -279,6 +290,22 @@ def upload_coin_number(t, base):
             coin_no=data[str(base)]['supply']
         except Exception as e:
             coin_no=float('nan')
+    return(coin_no)
+
+def upload_coin_number(timee, base):
+    t_critical=1532044800#before this threshold, no daily cmc data
+    if timee<t_critical:#get most recent Sunday for old files
+        coin_no=upload_historical_coin_number(timee, base)
+    else:#more recent dates, can try daily cmc data
+        try:
+            with open('/home/fbuonerba/cmc_data/cmc_'+str(base)+'_'+str(timee)+'.txt') as ff:
+                data=json.load(ff)
+            try:
+                coin_no=data['circulating_supply']
+            except Exception as e:
+                coin_no=float('nan')
+        except:#for some reason there is a hole in daily cmc data - use last sunday
+            coin_no=upload_historical_coin_number(timee, base)
     return(coin_no)
     
 ####Computing factor returns. Eventually might want exponential weighted decay.####   
@@ -354,23 +381,22 @@ def compute_returns_strength(base, quote, begin, end, freq):
 
 def compute_log_marketcap(base, quote, begin, end):
     #average log( price x coin_supply )
-    #frequency=1 week by default, because of cmc historical data availability; 
     # start Jan07=1515283200
     sym=str(base)+'_'+str(quote)+'_'+str(begin)+'_'+str(end)
     t=begin
-    weekly_mkcaps=[]
+    mkcap=[]
     #collect coin market caps, only if coin_no not NaN and rates non-empty
     while t<=end + 1:
         coin_no=upload_coin_number(t, base)
         rate=upload_rates(t, base, quote)
         #rate is a dictionary
         if rate!={} and np.isnan(coin_no)==False:
-            weekly_mkcaps.append(coin_no*rate['rate'])
-        t+=604800
-    if weekly_mkcaps==[]:
+            mkcap.append(coin_no*rate['rate'])
+        t+=86400
+    if mkcap==[]:
         log_mkcap=0
     else:
-        log_mkcap=np.log(np.mean(np.array(weekly_mkcaps)))
+        log_mkcap=np.log(np.mean(np.array(mkcap)))
     print(base, quote, 'log_mkcap=', log_mkcap)
     with open('/home/fbuonerba/factor_loadings/log_mkcap_'+sym+'.txt','w') as ff:
         json.dump(log_mkcap, ff)
@@ -378,6 +404,8 @@ def compute_log_marketcap(base, quote, begin, end):
 
 def compute_log_marketcap_exact(base,quote,timee):
     #log( price x coin_supply )
+    #cmc_data not available daily since jan07 - hence if before a critical
+    #time T=1532044800, round to most recent Sunday, else use daily.
     sym=str(base)+'_'+str(quote)+'_'+str(timee)
     coin_no=upload_coin_number(timee, base)
     rate=upload_rates(timee, base, quote)
@@ -391,12 +419,57 @@ def compute_log_marketcap_exact(base,quote,timee):
         json.dump(mkcap, ff)
     return(mkcap)
     
-    
-    
+def compute_average_coin_number(coin, begin, end):
+    t_critical=1532044800
+    t=begin
+    daily_coins=[]
+    while t<end:
+        coin_no=upload_coin_number(t, coin)
+        daily_coins.append(coin_no)
+        t+=86400
+    daily_coins=np.array(daily_coins)
+    mean=np.mean(daily_coins)
+    return(mean)
+
+def compute_turnover_exact(base, quote, begin, end):
+    #total coins traded in time frame/average supply
+    coin_no=compute_average_coin_number(base, begin, end)
+    sym=str(base)+'_'+str(quote)+'_'+str(begin)+'_'+str(end)
+    ratepath='/home/fbuonerba/exchange_rates_data/exchange_rate_'
+    t=begin
+    traded_coins=0
+    pool=mp.Pool()
+    with open('/home/fbuonerba/codes/meta_data/new_symbols.txt') as ff:
+        symbols=json.load(ff)
+    it_symbols=[]
+    #pick symbols with required base and quote from all coinapi symbols.
+    for symbol in symbols:
+        if str(base)+'_'+str(quote) in symbol:
+            it_symbols.append(symbol)
+    while t<=end + 1:
+        vol=0
+        results=[pool.apply_async(upload_ohlcv, args=(t,symbol,1,)) for symbol in it_symbols]
+        output=[res.get() for res in results]        
+        for out in output:
+            if (out!=[] and out!={}):
+                vol+=out['volume_traded']#total volume traded in BTC during the day
+        rate=upload_rates(t, base, quote)
+        if rate!={}:
+            traded_coins+=vol/rate['rate']
+        t+=86400
+    pool.close()#this is to avoid overloading memory
+    pool.join()
+    turnover=traded_coins/coin_no
+    print(base, quote, 'turnover=',turnover)
+    with open('/home/fbuonerba/factor_loadings/exact_turnover_'+sym+'.txt','w') as ff:
+        json.dump(turnover, ff)
+    return(turnover)  
+        
+
 def compute_turnover(base, quote, begin, end):
-    #total_traded_volume/average_coin_supply
-    #frequency=1 week by default, because of cmc historical data availability; 
+    #total_traded_volume_in_BTC/average_coin_supply 
     # start Jan07=1515283200
+    coin_no=compute_average_coin_number(base, begin, end)
     sym=str(base)+'_'+str(quote)+'_'+str(begin)+'_'+str(end)
     t=begin
     with open('/home/fbuonerba/codes/meta_data/new_symbols.txt') as ff:
@@ -406,44 +479,25 @@ def compute_turnover(base, quote, begin, end):
     for symbol in symbols:
         if str(base)+'_'+str(quote) in symbol:
             it_symbols.append(symbol)
-    weekly_coins=[]
-    weekly_volumes=[]
+    vol=0
     pool=mp.Pool()
-    while t<=end + 1:
-        vol=0
-        coin_no=upload_coin_number(t,base)
-        if np.isnan(coin_no)==False:
-            weekly_coins.append(coin_no)
-        #get ohlcv for the week, one per symbol.
-        #do it in parallel to speed up multiple ohlcv requests
-#         results=[pool.apply_async(upload_ohlcv_weekly, args=(t,symbol,)) for symbol in it_symbols]
-#         output=[res.get() for res in results]
-#         for out in output:
-#             if out!=[]:
-#                 vol+=out[0]['volume_traded']
-
-
-        #here we do using daily volumes.       
-        results=[pool.apply_async(upload_ohlcv, args=(t+86400*j,symbol,1,)) for symbol in it_symbols for j in range(7)]
+    while t<=end:
+        results=[pool.apply_async(upload_ohlcv, args=(t,symbol,1,)) for symbol in it_symbols]
         output=[res.get() for res in results]        
         for out in output:
             if (out!=[] and out!={}):
                 vol+=out['volume_traded']
-        weekly_volumes.append(vol)
-        t+=604800
+        t+=86400
     pool.close()#this is to avoid overloading memory
     pool.join()
-    if weekly_coins==[]:
-        turnover=0
-    else:
-        turnover=np.sum(np.array(weekly_volumes))/np.mean(np.array(weekly_coins))
+    turnover=vol/coin_no
     print(base, quote, 'turnover=', turnover)
-    with open('/home/fbuonerba/factor_loadings/turnover_'+sym+'.txt','w') as ff:
+    with open('/home/fbuonerba/factor_loadings/naive_turnover_'+sym+'.txt','w') as ff:
         json.dump(turnover, ff)
     return(turnover)  
 
-def upload_turnover(base,quote,begin,end):
-    path='/home/fbuonerba/factor_loadings/turnover_'
+def upload_turnover_naive(base,quote,begin,end):
+    path='/home/fbuonerba/factor_loadings/naive_turnover_'
     sym=str(base)+'_'+str(quote)+'_'+str(begin)+'_'+str(end)+'.txt'
     try:
         with open(path+sym) as file:
@@ -512,11 +566,11 @@ def compute_factor_loadings(base,quote,begin,end,freq):
     dictionary['returns_variance']=compute_returns_variance(base,quote,begin,end,freq)
     dictionary['rates_high_low']=compute_rates_high_low(base,quote,begin,end,freq)
     dictionary['returns_strength']=compute_returns_strength(base,quote,begin,end,freq)
-    dictionary['log_marketcap']=compute_log_marketcap(base,quote,begin,end)
-    dictionary['turnover']=compute_turnover(base,quote,begin,end)
-    dictionary['coin_ratio']=compute_coin_ratio(base,begin,end)
+    dictionary['log_marketcap']=compute_log_marketcap(base,quote,begin, end)
+    dictionary['turnover']=upload_turnover_naive(base,quote,begin,end)
+    #dictionary['coin_ratio']=compute_coin_ratio(base,begin,end)
     sys.stdout.flush()#force print
-    with open('/home/fbuonerba/factor_loadings/factors_'+sym+'.txt','w') as file:
+    with open('/home/fbuonerba/factor_loadings/averaged_factors_'+sym+'.txt','w') as file:
         json.dump(dictionary,file)
     return(dictionary)
         
