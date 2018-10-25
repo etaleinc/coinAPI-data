@@ -229,7 +229,20 @@ with $T_0=$January 07 2018, and $T_1=$April 01 2018.
 The model utilizing our definitions beat the model utilizing classical definitions by 89-51,
 where the comparison is by way of $R^2$ score of linear regressions. 
 The linear model with our definition obtains, in the above-mentioned time intervals, a
-huge spectrum of $R^2$ scores, reaching a highest of $62\%$ and averaging $22\%$.\newline
+huge spectrum of $R^2$ scores, reaching a highest of $62\%$ and averaging $22\%$.
+The following scatter plot shows the time-series of $R^2$ scores across these 140 days.
+\begin{figure}[H]
+  \caption{R2 scores}
+  \centering
+    \includegraphics[scale=0.5]{r2_scatter.png}
+\end{figure}
+The next plot shows the time-series of factor loadings obtained by our model, in the same period of time.
+\begin{figure}[H]
+  \caption{R2 scores}
+  \centering
+    \includegraphics[scale=0.5]{factor_loadings.png}
+\end{figure}
+Here the term intercept is simply the constant term of our regression.\newline 
 The following heatmaps represent correlations between coin returns computed
 in the last time interval, namely May 26 2018 to August 18 2018. The first heatmap shows raw correlations, while
 the second shows those computed by our model.
