@@ -161,10 +161,16 @@ and intuitive factors that have been widely used in financial modeling, leaving 
 exotic ones that may be relevant to the crypto world - factors such as price of electricity,
 number of miners on the blockchain, amount of activity on GitHub, sentiment analysis of
 Twitter data, and so on.
+
 \section{Our model}
 We can now dive into more technical details about our model. We consider a universe of
-$33$ coins, that have been selected according to three criteria: high market cap;
-availability of historical market data; not being a stablecoin. 
+$33$ coins, that have been selected according to three criteria:
+\begin{enumerate}
+\item High market cap
+\item Availability of historical market data
+\item Not being a stablecoin (as the purpose of stablecoins is to eliminate volatility relative to a benchmark)
+\end{enumerate}
+
 For each such coin we look exclusively at transactions to BTC:
 exchange rates are with respect to BTC, volumes are volumes of coins traded with BTC over all exchanges.
 Coins we will consider are:\newline
@@ -178,6 +184,9 @@ Likewise let $R_c=(r_{c,1},...,r_{c_T})$ denote the vector of daily returns, $S_
 the vector of daily number of coins outstanding, and $V_c=(v_{c,1}, ..., v_{c,T})$ the vector of daily traded
 volumes in BTC.
 Our risk factors are:
+
+%% mwc comment:  we should name the factors.  would also be good to try some variants on them (we probably shouldn't document every tweak as we want something propritary as well perhaps).  We should also include a historical plot of cumulative returns to the factors
+
 \begin{itemize}
 \item Standard deviation of returns std$(R)$.
 \item Strength of returns $$\sum_{t=1}^n \log(1+r_{c,t})$$
