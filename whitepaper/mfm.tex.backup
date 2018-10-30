@@ -161,10 +161,17 @@ and intuitive factors that have been widely used in financial modeling, leaving 
 exotic ones that may be relevant to the crypto world - factors such as price of electricity,
 number of miners on the blockchain, amount of activity on GitHub, sentiment analysis of
 Twitter data, and so on.
+
 \section{Our model}
 We can now dive into more technical details about our model. We consider a universe of
-$33$ coins, that have been selected according to two criteria: high market cap;
-availability of historical market data. For each such coin we look exclusively at transactions to BTC:
+$33$ coins, that have been selected according to three criteria:
+\begin{enumerate}
+\item High market cap
+\item Availability of historical market data
+\item Not being a stablecoin (as the purpose of stablecoins is to eliminate volatility relative to a benchmark)
+\end{enumerate}
+
+For each such coin we look exclusively at transactions to BTC:
 exchange rates are with respect to BTC, volumes are volumes of coins traded with BTC over all exchanges.
 Coins we will consider are:\newline
 'BTC' 'ETH' 'XRP' 'BCH' 'EOS' 'XLM' 'LTC' 'ADA' 'XMR' 'IOTA' 'TRX' 'ETC'
@@ -177,6 +184,9 @@ Likewise let $R_c=(r_{c,1},...,r_{c_T})$ denote the vector of daily returns, $S_
 the vector of daily number of coins outstanding, and $V_c=(v_{c,1}, ..., v_{c,T})$ the vector of daily traded
 volumes in BTC.
 Our risk factors are:
+
+%% mwc comment:  we should name the factors.  would also be good to try some variants on them (we probably shouldn't document every tweak as we want something propritary as well perhaps).  We should also include a historical plot of cumulative returns to the factors
+
 \begin{itemize}
 \item Standard deviation of returns std$(R)$.
 \item Strength of returns $$\sum_{t=1}^n \log(1+r_{c,t})$$
@@ -219,7 +229,20 @@ with $T_0=$January 07 2018, and $T_1=$April 01 2018.
 The model utilizing our definitions beat the model utilizing classical definitions by 89-51,
 where the comparison is by way of $R^2$ score of linear regressions. 
 The linear model with our definition obtains, in the above-mentioned time intervals, a
-huge spectrum of $R^2$ scores, reaching a highest of $62\%$ and averaging $22\%$.\newline
+huge spectrum of $R^2$ scores averaging $24\%$.
+The following scatter plot shows the time-series of $R^2$ scores across these 140 days.
+\begin{figure}[H]
+  \caption{R2 scores}
+  \centering
+    \includegraphics[scale=0.3]{r2_scatter.png}
+\end{figure}
+The next plot shows the time-series of cumulative factor returns obtained by our model, in the same period of time.
+\begin{figure}[H]
+  \caption{Cumulative factor returns}
+  \centering
+    \includegraphics[scale=0.4]{factor_returns.png}
+\end{figure}
+Here the term intercept is simply the constant term of our regression.\newline 
 The following heatmaps represent correlations between coin returns computed
 in the last time interval, namely May 26 2018 to August 18 2018. The first heatmap shows raw correlations, while
 the second shows those computed by our model.
@@ -246,31 +269,88 @@ We wish to find a vector of weights $w=(w_c)_{c\in C}$ solving the following qua
 This problem is easily solved via Lagrange multipliers, and it is equivalent to:\newline
 \textit{Minimize $w\cdot \Sigma\cdot w^T -\lambda \alpha\cdot w$ under constraint $\sum_c w_c=1$}.\newline
 The relation between $\lambda$ and $\mu$ in the above formulations can be easily computed.
-As an example, say we expect ETH to enjoy a superior return on August 18 2018, i.e. $\alpha=(1,0,...,0)$. 
+As an example, say we expect ETH to enjoy a superior return on August 18 2018, i.e. $\alpha=(1,0,...,0)$.
+We would like to hedge our portfolio under this expectation.
 Setting $\lambda=1$ and using correlations estimated between May 26 2018 to August 18 2018,
-we get the following array of weights $w$:\newline
-[ 2.96419788e+00, -1.31286101e+00, -1.42622432e-01, -1.71993730e-01,
-       -1.92916562e-01, -5.01830577e-01, -2.82954203e-01, -1.58491848e-01,
-       -2.25927793e-01, -6.89386864e-02, -2.07978931e-02, -2.34667725e-01,
-       -2.41443006e-01, -1.85703285e-01,  1.82055275e-03,  2.23332396e-02,
-        3.95347199e-02,  5.07720836e-02,  5.51865169e-02,  5.26010066e-03,
-        2.98914250e-01,  1.09600168e-01,  1.06205293e-01,  8.21228399e-02,
-        1.07886030e-01,  7.02477857e-02,  1.30482406e-01,  1.21897933e-01,
-        1.09311449e-01,  1.32140393e-01,  1.45112383e-01,  1.88122726e-01]\newline
+we get the following array of weights $w$ - where a negative weight suggests shorting the coin.
+\begin{center}
+\scalebox{0.65}{
+\begin{tabular}{ c | c   }    
+Coin & Weight\\
+\hline
+ETH & 3220.00 \\
+XRP & -31.67 \\
+BCH & -4679.74 \\
+EOS & 60.87 \\
+XLM & -75.91 \\
+LTC & -224.85 \\
+ADA & -30.85 \\
+XMR & 0.96 \\
+IOTA & 188.16 \\
+TRX & 13.30 \\
+ETC & 54.66 \\
+DASH & -36.48 \\
+NEO & -31.37 \\
+XEM & -48.19 \\
+BNB & 92.66 \\
+ZEC & 327.15 \\
+OMG & 1439.43 \\
+LSK & 40.81 \\
+ZRX & 9.25 \\
+QTUM & 23.77 \\
+DOGE & 390.38 \\
+BTS & 35.71 \\
+DGB & 298.48 \\
+ICX & 10.59 \\
+STEEM & -408.87 \\
+AE & 35.80 \\
+WAVES & 30.78 \\
+SC & 192.02 \\
+REP & -27.94 \\
+PPT & 4.42 \\
+GNT & 30.25 \\
+STRAT & -902.59 \\
+ 
+\end{tabular}}
+\end{center}
+Observe that the total sum of weights is constrained to $1$, but we do not constrain the absolute value
+of weights. In this example, the capital requirement $\sum_c |w_c|\sim12998$.\newline
 In order to test our portfolio construction, we computed optimal portfolios
-with $\alpha=(1,...1,0,...,0)$ - where the number of 1's at the
-beginning of $\alpha$ ranges from 1 to 9 - and across the 140 days mentioned in the previous section. 
+with $\alpha=(1,...1,0,...,0)$ - where the number of 1's in $\alpha$ 
+ranges from 1 to 9 - and across the 140 days mentioned in the previous section. 
 Remarkably, our portfolio often beats the one constructed using
 raw correlations, when its total return is estimated against historical data.
 In detail, for every such $\alpha$ and day $T$, we solve two quadratic optimization problems:
-one using our model correlations, and one using raw correlations. Let us denote the
+in the first one $\Sigma$ is estimated using our model; 
+in the second one $\Sigma$ is estimated as the correlation matrix of raw historical returns.
+Let us denote the
 resulting weight vectors by $w_{\alpha}$ and by $w_{\alpha}^{\text{raw}}$. Finally, let $R_T$ be the vector
 of realized historical returns between $T$ and $T+$1day. 
-Then our realized return is $\mu(\alpha,T)=R_T\cdot w_{\alpha}$, while the raw realized return is
+Then return realized by our portfolio is $\mu(\alpha,T)=R_T\cdot w_{\alpha}$, 
+while that realized by the raw portfolio is
 $\mu^{\text{raw}}(\alpha, T)=R_T\cdot w_{\alpha}^{\text{raw}}$. Out of these $140\times 9=1260$
 experiments, our porfolio beats the raw one 689-571, i.e $\mu(\alpha,T)>\mu^{\text{raw}}(\alpha,T)$
-689 times.
-This suggests that our model explains extremely well the correlation between top coins:
+holds for 689 pairs $(\alpha,T)$. 
+We also compare statistical quantities associated to our portfolio and to the raw one.
+Specifically, for every $\alpha$ we have two time-series of returns:
+\begin{itemize}
+ \item $R^{\alpha}=(\mu(\alpha,T))_{T\in T*}$, the returns of our optimized portfolio;
+ \item $R^{\alpha}_{\text{raw}}=(\mu(\alpha, T)^{\text{raw}})_{T\in T^*}$, the returns of the raw portfolio.
+\end{itemize}
+Where $T^*$ denotes the set of 140 days under consideration. We can compare mean, standard deviation, and
+Sharpe ratio of these time-series, for each $\alpha$. The results are summarized in the following table.
+
+\begin{center}
+\scalebox{0.81}{
+\begin{tabular}{c | c | c | c | c | c | c  }   
+ Alpha & Mean & Raw mean & Standard deviation & Raw sandard deviation & Sharpe ratio & Raw Sharpe ratio 
+\end{tabular}}
+\end{center}
+
+
+
+
+This suggests that our model captures very well the correlation between top coins:
 'ETH' 'XRP' 'BCH' 'EOS' 'XLM' 'LTC' 'ADA' 'XMR' 'IOTA'.
 
 \section{Stat-arb strategy}
